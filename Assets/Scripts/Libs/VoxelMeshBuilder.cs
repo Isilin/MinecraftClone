@@ -15,11 +15,19 @@ public class VoxelMeshBuilder
     public VoxelMeshBuilder(GameObject chunkObject, Material material, int atlasSize)
     {
         // Initialisation des composants Mesh
-        meshFilter = chunkObject.AddComponent<MeshFilter>();
-        meshCollider = chunkObject.AddComponent<MeshCollider>();
-        MeshRenderer meshRenderer = chunkObject.AddComponent<MeshRenderer>();
-        meshRenderer.material = material;
+        meshFilter = chunkObject.GetComponent<MeshFilter>();
+        if (meshFilter == null)
+            meshFilter = chunkObject.AddComponent<MeshFilter>();
 
+        meshCollider = chunkObject.GetComponent<MeshCollider>();
+        if (meshCollider == null)
+            meshCollider = chunkObject.AddComponent<MeshCollider>();
+
+        MeshRenderer meshRenderer = chunkObject.GetComponent<MeshRenderer>();
+        if (meshRenderer == null)
+            meshRenderer = chunkObject.AddComponent<MeshRenderer>();
+
+        meshRenderer.material = material;
         mesh = new Mesh();
         meshFilter.mesh = mesh;
 

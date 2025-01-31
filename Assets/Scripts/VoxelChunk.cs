@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 public class VoxelChunk : MonoBehaviour
 {
@@ -10,11 +9,13 @@ public class VoxelChunk : MonoBehaviour
     private VoxelMeshBuilder meshBuilder;
 
     private ChunkData data;
-    private TextureAtlas atlas;
+    private static TextureAtlas atlas;
 
     void Start()
     {
-        atlas = new TextureAtlas();
+        if (atlas == null)
+            atlas = new TextureAtlas();
+
         data = new ChunkData();
 
         chunkPosition = new Vector3Int(
@@ -23,9 +24,22 @@ public class VoxelChunk : MonoBehaviour
             Mathf.FloorToInt(transform.position.z / ChunkManager.chunkSize)
         );
 
-        meshBuilder = new VoxelMeshBuilder(gameObject, material, 16);
+        if (meshBuilder == null )
+            meshBuilder = new VoxelMeshBuilder(gameObject, material, ChunkManager.chunkSize);
 
         GenerateChunk();
+        RebuildMesh();
+    }
+    public void Initialize(ChunkData voxelData)
+    {
+        if (atlas == null)
+            atlas = new TextureAtlas();
+
+        data = voxelData;
+
+        if (meshBuilder == null)
+            meshBuilder = new VoxelMeshBuilder(gameObject, material, ChunkManager.chunkSize);
+
         RebuildMesh();
     }
 
