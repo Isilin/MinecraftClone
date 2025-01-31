@@ -2,12 +2,21 @@ using UnityEngine;
 
 public class ChunkData
 {
-    public Vector2Int position;
     public bool[,,] voxelMap;
 
-    public ChunkData(Vector2Int position, bool[,,] voxelMap)
+    public ChunkData()
     {
-        this.position = position;
-        this.voxelMap = voxelMap;
+        voxelMap = new bool[ChunkManager.chunkSize, ChunkManager.chunkSize, ChunkManager.chunkSize];
     }
+    public bool GetBlock(int x, int y, int z) => voxelMap[x, y, z];
+    public bool GetBlock(Vector3Int pos) => GetBlock(pos.x, pos.y, pos.z);
+
+    public void SetBlock(int x, int y, int z, bool value) => voxelMap[x, y, z] = value;
+    public void SetBlock(Vector3Int pos, bool value) => SetBlock(pos.x, pos.y, pos.z, value);
+
+    public bool IsInsideChunk(int x, int y, int z) =>
+        x >= 0 && x < ChunkManager.chunkSize &&
+        y >= 0 && y < ChunkManager.chunkSize &&
+        z >= 0 && z < ChunkManager.chunkSize;
+    public bool IsInsideChunk(Vector3Int pos) => IsInsideChunk(pos.x, pos.y, pos.z);
 }
