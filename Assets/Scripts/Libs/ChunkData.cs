@@ -19,4 +19,7 @@ public class ChunkData
         y >= 0 && y < ChunkManager.chunkSize &&
         z >= 0 && z < ChunkManager.chunkSize;
     public bool IsInsideChunk(Vector3Int pos) => IsInsideChunk(pos.x, pos.y, pos.z);
+
+    public bool IsBlockAt(int x, int y, int z) => IsInsideChunk(x, y, z) && voxelMap[x, y, z];
+    public bool IsBlockAt(Vector3Int pos) => IsBlockAt(pos.x, pos.y, pos.z);
 }

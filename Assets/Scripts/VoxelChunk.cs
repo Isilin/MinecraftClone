@@ -103,7 +103,7 @@ public class VoxelChunk : MonoBehaviour
         foreach (Vector3Int dir in directions)
         {
             Vector3Int neighborPos = pos + dir;
-            if (data.IsInsideChunk(neighborPos) && data.GetBlock(neighborPos))
+            if (data.IsInsideChunk(neighborPos))
             {
                 meshBuilder.AddCube(neighborPos, data, atlas.Grass);
             }

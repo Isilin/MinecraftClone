@@ -85,12 +85,12 @@ public class VoxelMeshBuilder
     public void AddCube(Vector3Int pos, ChunkData data, TextureAtlas.Block block)
     {
         // Ajout des faces seulement si elles sont visibles
-        if (data.IsInsideChunk(pos.x, pos.y, pos.z - 1)) AddFace(pos, new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 1, 0), new Vector3(0, 1, 0), block.side);
-        if (data.IsInsideChunk(pos.x, pos.y, pos.z + 1)) AddFace(pos, new Vector3(1, 0, 1), new Vector3(0, 0, 1), new Vector3(0, 1, 1), new Vector3(1, 1, 1), block.side);
-        if (data.IsInsideChunk(pos.x, pos.y - 1, pos.z)) AddFace(pos, new Vector3(0, 0, 1), new Vector3(1, 0, 1), new Vector3(1, 0, 0), new Vector3(0, 0, 0), block.bottom);
-        if (data.IsInsideChunk(pos.x, pos.y + 1, pos.z)) AddFace(pos, new Vector3(0, 1, 0), new Vector3(1, 1, 0), new Vector3(1, 1, 1), new Vector3(0, 1, 1), block.top);
-        if (data.IsInsideChunk(pos.x - 1, pos.y, pos.z)) AddFace(pos, new Vector3(0, 0, 1), new Vector3(0, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 1, 1), block.side);
-        if (data.IsInsideChunk(pos.x + 1, pos.y, pos.z)) AddFace(pos, new Vector3(1, 0, 0), new Vector3(1, 0, 1), new Vector3(1, 1, 1), new Vector3(1, 1, 0), block.side);
+        if (!data.IsBlockAt(pos.x, pos.y, pos.z - 1)) AddFace(pos, new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 1, 0), new Vector3(0, 1, 0), block.side);
+        if (!data.IsBlockAt(pos.x, pos.y, pos.z + 1)) AddFace(pos, new Vector3(1, 0, 1), new Vector3(0, 0, 1), new Vector3(0, 1, 1), new Vector3(1, 1, 1), block.side);
+        if (!data.IsBlockAt(pos.x, pos.y - 1, pos.z)) AddFace(pos, new Vector3(0, 0, 1), new Vector3(1, 0, 1), new Vector3(1, 0, 0), new Vector3(0, 0, 0), block.bottom);
+        if (!data.IsBlockAt(pos.x, pos.y + 1, pos.z)) AddFace(pos, new Vector3(0, 1, 0), new Vector3(1, 1, 0), new Vector3(1, 1, 1), new Vector3(0, 1, 1), block.top);
+        if (!data.IsBlockAt(pos.x - 1, pos.y, pos.z)) AddFace(pos, new Vector3(0, 0, 1), new Vector3(0, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 1, 1), block.side);
+        if (!data.IsBlockAt(pos.x + 1, pos.y, pos.z)) AddFace(pos, new Vector3(1, 0, 0), new Vector3(1, 0, 1), new Vector3(1, 1, 1), new Vector3(1, 1, 0), block.side);
     }
 
 }
