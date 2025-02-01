@@ -222,7 +222,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.1
-  far clip plane: 1000
+  far clip plane: 100
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -688,6 +688,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1358999256}
+  - component: {fileID: 1358999258}
+  - component: {fileID: 1358999257}
   - component: {fileID: 1358999255}
   m_Layer: 0
   m_Name: VoxelWorld
@@ -708,7 +710,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c6f6f6e7b3fe6c4692ebc57d82f9efb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  viewDistance: 3
+  _persistent: 1
+  viewDistance: 5
   chunkPrefab: {fileID: 5330156657323619611, guid: 6fc6ce99f2fce4a4fafd8863cf5a06fd, type: 3}
   player: {fileID: 1446627530}
 --- !u!4 &1358999256
@@ -726,6 +729,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1358999257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358999254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 022a277af910a6b449b313917e0241a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _persistent: 1
+  scale: 0.05
+  scaleBis: 0.01
+  heightMultiplier: 10
+  heightMultiplierBis: 5
+  worldSeed: 0
+  chunkSize: 16
+--- !u!114 &1358999258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358999254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b53bf16235717c843aca3b9bbee96866, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _persistent: 1
 --- !u!1 &1446627528
 GameObject:
   m_ObjectHideFlags: 0

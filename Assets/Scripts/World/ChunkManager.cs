@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Collections;
 using System.Linq;
 
-public class ChunkManager : MonoBehaviour
+public class ChunkManager : Singleton<ChunkManager>
 {
     public int viewDistance = 5; // Distance de génération des chunks (en chunks)
     public GameObject chunkPrefab;
@@ -13,56 +13,27 @@ public class ChunkManager : MonoBehaviour
 
     public Transform player; // Référence au joueur
 
-    public static int chunkSize = 16;
-    public static int worldSeed;
-    public static MapGeneration terrainGenerator;
-
     private ConcurrentQueue<KeyValuePair<Vector2Int, ChunkData>> chunksToLoad = new ConcurrentQueue<KeyValuePair<Vector2Int, ChunkData>>();
     private ConcurrentDictionary<Vector2Int, bool> chunksBeingGenerated = new ConcurrentDictionary<Vector2Int, bool>();
     private int maxChunksPerFrame = 2;
     private readonly object lockObject = new object();
 
-    public static ChunkManager Instance { get; private set; } // Singleton
-
-    void Awake()
-    {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-    }
-
     void Start()
     {
-        if (worldSeed == 0)
-        {
-            worldSeed = Random.Range(0, 9999999);
-        }
-        Debug.Log("Seed du monde : " + worldSeed);
-
-        terrainGenerator = new MapGeneration(worldSeed);
-
-        UpdateChunks();
+        UpdateChunksList();
 
         StartCoroutine(WaitForTerrainGeneration());
         StartCoroutine(ProcessChunksQueue());
     }
 
-    // Fonction qui retourne la hauteur du terrain à un point donné
-    public float GetTerrainHeight(Vector2 localPos, Vector2Int chunkPos)
-    {
-        return terrainGenerator.GetHeight(localPos, chunkPos);
-    }
-
     void Update()
     {
-        UpdateChunks();
+        UpdateChunksList();
     }
 
-    void UpdateChunks()
+    void UpdateChunksList()
     {
-        Vector2Int playerChunkCoord = new Vector2Int(
-            Mathf.FloorToInt(player.position.x / chunkSize),
-            Mathf.FloorToInt(player.position.z / chunkSize)
-        );
+        Vector2Int playerChunkCoord = MapGeneration.Instance.WorldToChunk(player.position);
 
         HashSet<Vector2Int> chunksToGenerate = new HashSet<Vector2Int>();
 
@@ -114,23 +85,10 @@ public class ChunkManager : MonoBehaviour
 
     void GenerateChunkThread(Vector2Int chunkCoord)
     {
-        ChunkData voxelData = new ChunkData();
-
-        for (int x = 0; x < chunkSize; x++)
-        {
-            for (int z = 0; z < chunkSize; z++)
-            {
-                float height = terrainGenerator.GetHeight(new Vector3(x, 0, z), chunkCoord);
-                for (int y = 0; y <= height; y++)
-                {
-                    voxelData.SetBlock(x, y, z, true);
-                }
-            }
-        }
-
         // Ajouter le chunk généré à la file d'attente pour l'affichage
-        if (!chunksToLoad.Contains(new KeyValuePair<Vector2Int, ChunkData>(chunkCoord, voxelData)))
+        if (chunksToLoad.Where(item => item.Key == chunkCoord).ToList().Count == 0)
         {
+            ChunkData voxelData = MapGeneration.Instance.GenerateChunkData(chunkCoord);
             chunksToLoad.Enqueue(new KeyValuePair<Vector2Int, ChunkData>(chunkCoord, voxelData));
         }
 
@@ -140,12 +98,7 @@ public class ChunkManager : MonoBehaviour
 
     IEnumerator WaitForTerrainGeneration()
     {
-        Vector2Int playerChunkCoord = new Vector2Int(
-            Mathf.FloorToInt(player.position.x / chunkSize),
-            Mathf.FloorToInt(player.position.z / chunkSize)
-        );
-
-        Debug.Log("Waiting for player chunk to generate...");
+        Vector2Int playerChunkCoord = MapGeneration.Instance.WorldToChunk(player.position);
 
         // Attendre que le chunk du joueur soit généré
         while (!chunks.ContainsKey(playerChunkCoord))
@@ -154,10 +107,8 @@ public class ChunkManager : MonoBehaviour
         }
 
         // Une fois que le chunk est généré, placer le joueur au-dessus du terrain
-        float highestPoint = GetTerrainHeight(new Vector2(player.position.x, player.position.z), playerChunkCoord) - 2.0f;
-        player.position = new Vector3(player.position.x, highestPoint + 3f, player.position.z);
-
-        Debug.Log($"Player placed at {player.position}");
+        float highestPoint = MapGeneration.Instance.GetHeight(new Vector2(player.position.x, player.position.z), playerChunkCoord);
+        player.position = new Vector3(player.position.x, highestPoint + 2.0f, player.position.z);
     }
 
     IEnumerator ProcessChunksQueue()
@@ -180,13 +131,14 @@ public class ChunkManager : MonoBehaviour
     }
     void CreateChunk(Vector2Int chunkCoord, ChunkData voxelData)
     {
+        int chunkSize = MapGeneration.Instance.chunkSize;
         if (chunks.ContainsKey(chunkCoord))
             return;
 
-        GameObject chunkObject = Instantiate(chunkPrefab, new Vector3(chunkCoord.x * chunkSize, 0, chunkCoord.y * chunkSize), Quaternion.identity);
+        GameObject chunkObject = Instantiate(chunkPrefab, new Vector3(chunkCoord.x * chunkSize, 0, chunkCoord.y * chunkSize), Quaternion.identity, gameObject.transform);
         VoxelChunk chunk = chunkObject.GetComponent<VoxelChunk>();
 
-        chunk.Initialize(voxelData);
+        chunk.SetData(voxelData);
         chunks[chunkCoord] = chunkObject;
     }
 }

@@ -53,22 +53,14 @@ public class PlayerInteraction : MonoBehaviour
             VoxelChunk chunk = FindChunk(gridPos);
             if (chunk != null)
             {
-                // Instancier un bloc en tant que GameObject
-                GameObject tmpBlock = Instantiate(blockPrefab, blockPos, Quaternion.identity);
-
                 chunk.AddBlock(gridPos);
-
-                Destroy(tmpBlock);
             }
         }
     }
 
     VoxelChunk FindChunk(Vector3Int worldPos)
     {
-        // Convertir la position en coordonnées de chunk
-        int chunkX = Mathf.FloorToInt((float)worldPos.x / 16);
-        int chunkZ = Mathf.FloorToInt((float)worldPos.z / 16);
-        Vector2Int chunkCoord = new Vector2Int(chunkX, chunkZ);
+        Vector2Int chunkCoord = MapGeneration.Instance.WorldToChunk(worldPos);
 
         // Vérifier si le chunk existe dans `ChunkManager`
         if (ChunkManager.Instance.chunks.ContainsKey(chunkCoord))
