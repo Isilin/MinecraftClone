@@ -17,6 +17,7 @@ public class ChunkManager : Singleton<ChunkManager>
     private ConcurrentDictionary<Vector2Int, bool> chunksBeingGenerated = new ConcurrentDictionary<Vector2Int, bool>();
     private int maxChunksPerFrame = 2;
     private readonly object lockObject = new object();
+    ChunkPool pool = new ChunkPool();
 
     void Start()
     {
@@ -72,7 +73,10 @@ public class ChunkManager : Singleton<ChunkManager>
 
             if (distanceX > viewDistance || distanceZ > viewDistance)
             {
-                Destroy(chunk.Value);
+                if(!pool.Enqueue(chunk.Value))
+                {
+                    Destroy(chunk.Value);
+                }
                 chunksToRemove.Add(chunk.Key);
             }
         }
@@ -135,7 +139,19 @@ public class ChunkManager : Singleton<ChunkManager>
         if (chunks.ContainsKey(chunkCoord))
             return;
 
-        GameObject chunkObject = Instantiate(chunkPrefab, new Vector3(chunkCoord.x * chunkSize, 0, chunkCoord.y * chunkSize), Quaternion.identity, gameObject.transform);
+        Vector3 chunkPos = new Vector3(chunkCoord.x * chunkSize, 0, chunkCoord.y * chunkSize);
+
+
+        GameObject chunkObject = pool.TryDequeue();
+        if (chunkObject != null)
+        {
+            chunkObject.transform.position = chunkPos;
+        }
+        else
+        {
+            chunkObject = Instantiate(chunkPrefab, chunkPos, Quaternion.identity, gameObject.transform);
+        }
+            
         VoxelChunk chunk = chunkObject.GetComponent<VoxelChunk>();
 
         chunk.SetData(voxelData);
